@@ -262,16 +262,28 @@ class ClassController extends AdminController implements EventedControllerInterf
      */
     public function addCustomLayoutAction(Request $request)
     {
+        $layoutId = $request->get('layoutIdentifier');
+
+        if ($layoutId) {
+            $existingLayout = DataObject\ClassDefinition\CustomLayout::getById($layoutId);
+            if ($existingLayout) {
+                throw new \Exception('Custom Layout identifier already exists');
+            }
+        }
+
         $customLayout = DataObject\ClassDefinition\CustomLayout::create(
-            ['name' => $request->get('name'),
+            [
+                'name' => $request->get('layoutName'),
                 'userOwner' => $this->getAdminUser()->getId(),
-                'classId' => $request->get('classId')]
+                'classId' => $request->get('classId')
+            ]
         );
 
+        // $customLayout->setId($layoutId);
         $customLayout->save();
 
         return $this->adminJson(['success' => true, 'id' => $customLayout->getId(), 'name' => $customLayout->getName(),
-                                 'data' => $customLayout]);
+            'data' => $customLayout]);
     }
 
     /**
@@ -316,6 +328,7 @@ class ClassController extends AdminController implements EventedControllerInterf
     public function saveCustomLayoutAction(Request $request)
     {
         $customLayout = DataObject\ClassDefinition\CustomLayout::getById($request->get('id'));
+
         $class = DataObject\ClassDefinition::getById($customLayout->getClassId());
 
         $configuration = $this->decodeJson($request->get('configuration'));
@@ -345,7 +358,6 @@ class ClassController extends AdminController implements EventedControllerInterf
             return $this->adminJson(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-
     /**
      * @Route("/save", methods={"PUT"})
      *
@@ -1658,7 +1670,7 @@ class ClassController extends AdminController implements EventedControllerInterf
         $result = [
             'suggestedIdentifier' => $maxId ? $maxId + 1 : 1,
             'existingIds' => $existingIds
-            ];
+        ];
 
         return $this->adminJson($result);
     }
