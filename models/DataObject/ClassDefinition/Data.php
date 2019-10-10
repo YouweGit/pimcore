@@ -617,6 +617,8 @@ abstract class Data
             } else {
                 $value = $db->quote($value);
             }
+        } elseif (is_array($value)) {
+            $value = "'" . current($value) . "'";
         }
 
         if (in_array($operator, DataObject\ClassDefinition\Data::$validFilterOperators)) {
@@ -1317,7 +1319,7 @@ abstract class Data
      */
     public function marshal($value, $object = null, $params = [])
     {
-        if (isset($params['raw']) && $params['raw']) {
+        if ($params['raw']) {
             return $value;
         } else {
             return ['value' => $value];
