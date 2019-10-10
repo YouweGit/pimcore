@@ -617,6 +617,8 @@ abstract class Data
             } else {
                 $value = $db->quote($value);
             }
+        } elseif (is_array($value)) {
+            $value = "'" . current($value) . "'";
         }
 
         if (in_array($operator, DataObject\ClassDefinition\Data::$validFilterOperators)) {
